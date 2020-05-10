@@ -7,12 +7,21 @@
     "start": "nodemon src/index.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Roger-Takeshita/The-Modern-GraphQL.git"
+  },
   "keywords": [],
   "author": "Roger Takeshita",
   "license": "ISC",
   "dependencies": {
+    "aws-lambda": "^0.1.2",
     "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "braces": "^2.3.1",
+    "graphql": "^0.13.1",
+    "graphql-playground-middleware-lambda": "^1.7.12",
     "graphql-yoga": "^1.18.3"
   }
 }

@@ -24,6 +24,8 @@
     npm i babel-cli
     npm i babel-preset-env
     npm i graphql-yoga
+    npm i uuid
+    npm i babel-plugin-transform-object-rest-spread
 ```
 
 <h3 id='folderfiles'>Folder and Files</h3>
@@ -338,3 +340,20 @@
         });
     ```
 
+<h2 id='newpackages'>UUID and Transform-Object-Rest-Spread</h2>
+
+[Go Back to Summary](#summary)
+
+* Install two new packages
+  * `uuid` is to generate random `ids`
+  * `transform-object-rest-spread` is to use the spread operator (`...`) with babel
+
+    ```Bash
+        npm i uuid, generates random ids
+        npm i babel-plugin-transform-object-rest-spread
+    ```
+
+* In `.babelrc`
+  * We have to tell babel to use it
+  * We need to create a new root ("plugins")
+    * `"plugins": ["transform-object-rest-spread"]`
