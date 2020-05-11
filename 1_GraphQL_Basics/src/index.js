@@ -1,10 +1,14 @@
-import { GraphQLServer } from 'graphql-yoga';
+import { GraphQLServer, PubSub } from 'graphql-yoga';
 import db from './database';
 import Query from './resolvers/Query';
-import Mutation from './resolvers/Mutations';
+import Mutation from './resolvers/Mutation';
 import User from './resolvers/User';
 import Post from './resolvers/Post';
 import Comment from './resolvers/Comment';
+import Subscription from './resolvers/Subscription';
+
+//! Subscriptions
+const pubsub = new PubSub();
 
 //! Create the server
 //+ The server expects an object as argument with:
@@ -17,9 +21,10 @@ const server = new GraphQLServer({
         Mutation,
         User,
         Post,
-        Comment
+        Comment,
+        Subscription
     },
-    context: { db }
+    context: { db, pubsub }
 });
 
 //! Start the server
