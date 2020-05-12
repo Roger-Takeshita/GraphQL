@@ -1,11 +1,12 @@
 {
-  "name": "1_GraphQL_Basics",
+  "name": "2_GraphQL_Prisma",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.js --ext js,graphql --exec babel-node",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "get-schema": "graphql get-schema -p prisma"
   },
   "author": "Roger Takeshita",
   "license": "ISC",
@@ -13,10 +14,9 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "graphql-cli": "^3.0.14",
     "graphql-yoga": "^1.18.3",
+    "prisma-binding": "^2.3.16",
     "uuid": "^3.4.0"
-  },
-  "devDependencies": {
-    "nodemon": "^1.19.4"
   }
 }
