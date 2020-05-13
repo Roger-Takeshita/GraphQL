@@ -11,6 +11,8 @@ const prisma = new Prisma({
     endpoint: 'http://localhost:4466'
 });
 
+export { prisma as default };
+
 //! PRISMA BINDINGS
 //! prisma.query, prisma.mutation, prisma.subscription, prism.exists
 //+ 1st argument options (operation args, selection set) - returns a promise
@@ -50,7 +52,7 @@ const prisma = new Prisma({
     .then((data) => console.log(JSON.stringify(data, undefined, 4))); */
 
 //- Async/Await Create Post - Always return a promise
-const createPostForUser = async (authorId, data) => {
+/* const createPostForUser = async (authorId, data) => {
     const userExists = await prisma.exists.User({
         id: authorId
     });
@@ -69,7 +71,7 @@ const createPostForUser = async (authorId, data) => {
         '{ author { id name email posts { id title published } } }'
     );
     return post;
-};
+}; */
 
 // createPostForUser('cka41btjj007w07211j27dlmt', {
 //     title: 'Great books to read',
@@ -102,7 +104,7 @@ const createPostForUser = async (authorId, data) => {
     .then((data) => console.log(JSON.stringify(data, undefined, 4))); */
 
 //- Async/Await Update Post - Always return a promise
-const updatePostFroUser = async (postId, data) => {
+/* const updatePostFroUser = async (postId, data) => {
     const postExists = await prisma.exists.Post({ id: postId });
     if (!postExists) throw new Error('Post not found');
     const post = await prisma.mutation.updatePost(
@@ -123,7 +125,7 @@ updatePostFroUser('cka4ak88o03gk0721jh3lu4w5', {
     published: false
 })
     .then((user) => console.log(JSON.stringify(user, undefined, 4)))
-    .catch((error) => console.log(error.message));
+    .catch((error) => console.log(error.message)); */
 
 //! Prisma Exists
 /* prisma.exists
