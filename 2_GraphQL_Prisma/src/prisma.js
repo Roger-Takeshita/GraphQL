@@ -1,4 +1,5 @@
 import { Prisma } from 'prisma-binding';
+import { fragmentReplacements } from './resolvers/index';
 
 //! Create the connection
 //+ Then we pass an object as argument to connect prisma endpoint
@@ -8,7 +9,9 @@ import { Prisma } from 'prisma-binding';
 //? endpoint, specifies the URL where prisma graphical API lives
 const prisma = new Prisma({
     typeDefs: 'src/generated/prisma.graphql',
-    endpoint: 'http://localhost:4466'
+    endpoint: 'http://localhost:4466',
+    secret: 'My$up3r$3cr3t',
+    fragmentReplacements
 });
 
 export { prisma as default };
