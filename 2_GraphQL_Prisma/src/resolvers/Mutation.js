@@ -11,7 +11,6 @@ const Mutations = {
                 password
             }
         });
-        console.log(user);
         return {
             user,
             token: getToken({ userId: user.id })
