@@ -1,13 +1,10 @@
-import jwt from 'jsonwebtoken';
-const JWT_SECRET = 'MyJWT$3cr3t';
-import bcrypt from 'bcryptjs';
-const BYCRYPT_SALT = 6;
 import getUserId from '../utils/getUserId';
+import getToken from '../utils/getToken';
+import { hashPassword, comparePassword } from '../utils/hashPassword';
 
 const Mutations = {
     async createUser(parent, { data }, { prisma }, info) {
-        if (data.password.length < 8) throw new Error('Password must be 8 characters or longer');
-        const password = await bcrypt.hash(data.password, BYCRYPT_SALT);
+        const password = await hashPassword(data.password);
         const user = await prisma.mutation.createUser({
             data: {
                 ...data,
@@ -17,7 +14,7 @@ const Mutations = {
         console.log(user);
         return {
             user,
-            token: jwt.sign({ userId: user.id }, JWT_SECRET)
+            token: getToken({ userId: user.id })
         };
     },
     async loginUser(parent, { data }, { prisma }, info) {
@@ -27,19 +24,20 @@ const Mutations = {
             }
         });
         if (!user) throw new Error('Bad credentials');
-        const isMatch = await bcrypt.compare(data.password, user.password);
+        const isMatch = await comparePassword(data.password, user.password);
         if (!isMatch) throw new Error('Bad credentials');
         return {
             user,
-            token: jwt.sign({ userId: user.id }, JWT_SECRET)
+            token: getToken({ userId: user.id })
         };
     },
     deleteUser(parent, args, { prisma, request }, info) {
         const userId = getUserId(request);
         return prisma.mutation.deleteUser({ where: { id: userId } }, info);
     },
-    updateUser(parent, { data }, { prisma, request }, info) {
+    async updateUser(parent, { data }, { prisma, request }, info) {
         const userId = getUserId(request);
+        if (typeof data.password === 'string') data.password = await hashPassword(data.password);
         return prisma.mutation.updateUser({ data: data, where: { id: userId } }, info);
     },
     createPost(parent, { data }, { prisma, request }, info) {
@@ -73,6 +71,7 @@ const Mutations = {
     },
     async updatePost(parent, { id, data }, { prisma, request }) {
         const userId = getUserId(request);
+
         const postExists = await prisma.exists.Post({
             id,
             author: {
@@ -80,13 +79,22 @@ const Mutations = {
             }
         });
         if (!postExists) throw new Error('Post not found');
+
+        const isPublished = await prisma.exists.Post({ id, published: true });
+        if (isPublished && data.published === false)
+            await prisma.mutation.deleteManyComments({ where: { post: { id } } });
         return prisma.mutation.updatePost({
             data: { ...data },
             where: { id }
         });
     },
-    createComment(parent, { data }, { prisma, request }, info) {
+    async createComment(parent, { data }, { prisma, request }, info) {
         const userId = getUserId(request);
+        const postExists = await prisma.exists.Post({
+            id: data.post,
+            published: true
+        });
+        if (!postExists) throw new Error('Post not found');
         return prisma.mutation.createComment(
             {
                 data: {

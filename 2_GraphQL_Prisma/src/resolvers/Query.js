@@ -5,15 +5,16 @@ const Query = {
         const opArgs = {};
         if (query) {
             opArgs.where = {
-                OR: [{ name_contains: query }, { email_contains: query }]
+                OR: [{ name_contains: query }]
             };
         }
         return prisma.query.users(opArgs, info);
     },
-    posts(parent, { query }, { prisma }, info) {
+    posts(parent, { query }, { prisma, request }, info) {
+        const userId = getUserId(request, false);
         const opArgs = {
             where: {
-                published: true
+                OR: [{ published: true }, { author: { id: userId } }]
             }
         };
         if (query) {

@@ -2,7 +2,9 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = 'MyJWT$3cr3t';
 
 const getUserId = (request, requireAuth = true) => {
-    const header = request.request.headers.authorization;
+    const header = request.request
+        ? request.request.headers.authorization
+        : request.connection.context.Authorization;
     if (header) {
         const token = header.replace('Baerer ', '');
         const decoded = jwt.verify(token, JWT_SECRET);
