@@ -9,8 +9,8 @@ import { fragmentReplacements } from './resolvers/index';
 //? endpoint, specifies the URL where prisma graphical API lives
 const prisma = new Prisma({
     typeDefs: 'src/generated/prisma.graphql',
-    endpoint: 'http://localhost:4466',
-    secret: 'My$up3r$3cr3t',
+    endpoint: process.env.PRISMA_ENDPOINT,
+    secret: process.env.PRISMA_SECRET,
     fragmentReplacements
 });
 

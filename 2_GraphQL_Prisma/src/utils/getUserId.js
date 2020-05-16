@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-const JWT_SECRET = 'MyJWT$3cr3t';
 
 const getUserId = (request, requireAuth = true) => {
     const header = request.request
@@ -7,7 +6,7 @@ const getUserId = (request, requireAuth = true) => {
         : request.connection.context.Authorization;
     if (header) {
         const token = header.replace('Baerer ', '');
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoded) throw new Error('Bad token');
         return decoded.userId;
     }
