@@ -23,6 +23,17 @@
         -   [Utilities Folder](#utilities)
         -   [Mutation File](#mutationsfile)
         -   [Query File](#queryfile)
+-   [Deploying To Heroku](#deploying)
+    -   [Connecting Prisma Cloud](#connectingprismacloud)
+    -   [Connecting pgAdmin to Database](#connectingpgadmin)
+    -   [Deploying to Heroku](#deployingtoheroku)
+        -   [Environment Variables](#environmentvariables)
+            -   [Prisma Endpoint](#prismaendpoint)
+        -   [Before Deploying](#beforedploying)
+        -   [Create Heroku App](#createapp)
+            -   [Login](#herokulogin)
+            -   [Create App](#herokucreate)
+        -   [Deploy to GitHub - Subtree](#deploytogitsubtree)
 
 <h1 id='prisma'>Prisma</h1>
 
@@ -1281,3 +1292,230 @@ touch .graphqlconfig src/prisma.js
 
         export { Query as default };
     ```
+
+<h1 id='deploying'>Deploying To Heroku</h1>
+
+[Go Back to Summary](#summary)
+
+-   Heroku
+
+    -   Heroku will host our database, docker container and our node.js application
+
+<h2 id='connectingprismacloud'>Connecting Prisma Cloud</h2>
+
+[Go Back to Summary](#summary)
+
+-   Prisma cloud, manager of heroku prisma instances - So we don't need to do anything fancy to get the database (prisma cloud will do that for us)
+
+    -   prisma.io/cloud
+        -   Click on `Servers`
+            -   By default there are two servers running (created by prisma)
+                -   prisma-eu1
+                -   prisma-us1
+                -   We cannot access or change
+            -   Click on `Add Server`
+                -   Add a new Prisma server
+                    -   Give a name to your server (`Server name`)
+                        -   In my case will be `roger-takeshita`
+                    -   Give a description to your server (`Server description`)
+                        -   In my case will be `Blogging application`
+                    -   Click on `CREATE A SERVER`
+        -   Set up a database
+            -   Click on `Create a new database`
+        -   Choose a database provider
+            -   Click on `Heroku Supports PostgreSQL`
+        -   Connect to Heroku
+            -   Click on `Connect to a new Heroku account`
+            -   Click on `Allow Prisma to Manage Your Heroku Account`
+            -   Back to prisma page, click on the account you've just allowed
+        -   Create a new database
+            -   Stick with the default
+                -   Database type: `PostgreSQL`
+                -   Database region: `US (Virginia)`
+            -   Click on `CREATE DATABASE`
+        -   New database successfully create!
+            -   Click on `SET UP SERVER`
+        -   Choose a server provider
+            -   Click on `Heroku`
+        -   Create a new server
+            -   Select `Free`
+            -   Click on `CREATE SERVER`
+        -   Connection Information
+            -   Click on `Servers`
+            -   Click on your server
+                -   In my case `roger-takeshita`
+            -   Click on `Database VIEW ON HEROKU`
+                -   It will redirect to Heroku page
+                -   Click on `Resources` tab
+                    -   Click on `Heroku Postgres`
+                        -   You will be redirected to heroku dashboard
+                -   On `data.heroku.com/dashboard`
+                    -   Click on `Settings` tab
+                        -   Click o `View Credentials`
+
+<h2 id='connectingpgadmin'>Connecting pgAdmin to Database</h2>
+
+[Go Back to Summary](#summary)
+
+-   Add a Server
+    -   Right click on `Servers` list
+        -   Then `Create > Server`
+        -   On `General` tab, give a name to your server
+            -   In my case `roger-takeshita-dev-server`
+        -   On `Connection` tab, we have to fill all the information that we get from Heroku
+
+<h2 id='deployingtoheroku'>Deploying to Heroku</h2>
+
+<h3 id='environmentvariables'>Environment Variables</h3>
+
+[Go Back to Summary](#summary)
+
+-   Install the `env-cmd` package
+
+    -   `npm i env-cmd`
+
+-   Create folder and files
+    -   You can choose whatever name you want for the folder and file names
+
+```Bash
+        mkdir env
+        touch env/dev.env env/prod.env
+```
+
+-   In `env/dev.env`
+    -   Add our development environment variables
+
+```Bash
+        PRISMA_ENDPOINT=http://localhost:4466
+        PRISMA_SECRET=My$up3r$3cr3t
+        JWT_SECRET=MyJWT$3cr3t
+```
+
+-   In `env/dev.env`
+    -   We will Add our production environment variables
+    -   For now leave it blank
+
+<h4 id='prismaendpoint'>Prisma Endpoint</h4>
+
+-   On your terminal change the directory to `prisma` folder
+-   In `prisma/prisma.yml`
+
+```Bash
+        endpoint: ${env:PRISMA_ENDPOINT}
+        datamodel: datamodel.prisma
+        secret: ${env:PRISMA_SECRET}
+```
+
+-   Then we need to login to Prisma Cloud
+
+    -   Run the command: `prima login`
+
+-   Getting our production PRIMS_ENDPOINT from prisma cloud
+
+    -   Run the command: `prisma deploy -e ../env/prod.env`
+
+        -   On the list pick the service that we created
+            -   `roger-takeshita-a2das/roger-takeshita-blog-app`
+        -   Choose a name for your service:
+            -   `roger-takeshita-blog-app`
+        -   Choose a name for your state:
+            -   `prod`
+        -   After the process has finished
+            -   In `prisma.yml`
+            -   We now have a commented out endpoint and a new endpoint that prisma generated for us
+                -   `https://roger-takeshita-c4141231231.herokuapp.com/roger-takeshita-blog-app/prod`
+
+    -   Cut the new endpoint link
+    -   Uncomment the original endpoint
+    -   Save the `prisma.yml`
+
+-   in `env/prod.env`
+    -   paste the our production endpoint
+
+```Bash
+        PRISMA_ENDPOINT=https://roger-takeshita-c4141231231.herokuapp.com/roger-takeshita-blog-app/prod
+        PRISMA_SECRET=DIFFERENTFROMDEVMy$up3r$3cr3t
+        JWT_SECRET=DIFFERENTFROMDEVMyJWT$3cr3t
+```
+
+<h3 id='beforedploying'>Before Deploying</h3>
+
+[Go Back to Summary](#summary)
+
+-   Before deploying to heroku we have to change a few things to our server
+-   In `src/index.js`
+    -   Add an environment PORT, heroku wil use this environment variable to inject his own port
+
+```JavaScript
+        server.start({ port: process.env.PORT || 4000 }, () => {
+            console.log('The Server is Running');
+        });
+```
+
+-   Change all files to use environment variables
+
+    -   `src/utils/getToken.js`
+    -   `src/utils/getUserId.js`
+
+-   In `package.json`
+
+    -   update our scripts
+    -   **start**
+        -   heroku will use this path to start our server
+    -   **heroku-postbuild**
+
+        -   Uses babel
+        -   Copy `src` folder into a new folder `dist`
+        -   `--copy-files`, copy all other files that are not javascript files
+
+    -   Install `@babel/polyfill`
+        -   `babel-node` uses the new features like `async/await`
+        -   but babel don't, that's why we need to install a `@babel/polyfill`
+        -   In `src/index.js`
+            -   import `@babel/polyfill` at the top of the file
+
+```JavaScript
+        "scripts": {
+            "start": "node dist/index.js",
+            "heroku-postbuild": "babel src --out-dir dist --copy-files",
+            "dev": "env-cmd -f ./env/dev.env nodemon src/index.js --ext js,graphql --exec babel-node",
+            "test": "echo \"Error: no test specified\" && exit 1",
+            "get-schema": "graphql get-schema -p prisma --dotenv env/dev.env"
+        },
+```
+
+<h3 id='createapp'>Create Heroku App</h3>
+
+[Go Back to Summary](#summary)
+
+<h4 id='herokulogin'>Login</h4>
+
+[Go Back to Summary](#summary)
+
+```Bash
+   heroku login
+```
+
+<h4 id='herokucreate'>Create App</h4>
+
+[Go Back to Summary](#summary)
+
+```Bash
+   heroku create <app_name>
+```
+
+<h3 id='deploytogitsubtree'>Deploy to GitHub - Subtree</h3>
+
+[Go Back to Summary](#summary)
+
+```Bash
+   git subtree push --prefix path/to/subdirectory heroku master
+```
+
+-   where `path/to/subdirectory` is the path to the project that you want to deploy to heroku
+-   for example we have this [repo](https://github.com/Roger-Takeshita/GraphQL)
+    -   Inside we have a folder called `2_GraphQL_Prisma` (we want to deploy this folder)
+
+```Bash
+      git subtree push --prefix 2_GraphQL_Prisma heroku master
+```
