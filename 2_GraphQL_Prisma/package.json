@@ -7,21 +7,37 @@
     "start": "node dist/index.js",
     "heroku-postbuild": "babel src --out-dir dist --copy-files",
     "dev": "env-cmd -f ./env/dev.env nodemon src/index.js --ext js,graphql --exec babel-node",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "get-schema": "graphql get-schema -p prisma --dotenv env/dev.env"
+    "get-schema": "graphql get-schema -p prisma --dotenv env/dev.env",
+    "test": "env-cmd -f ./env/test.env jest --watch --runInBand"
+  },
+  "jest": {
+    "bail": 1,
+    "verbose": true,
+    "globalSetup": "./test/config/globalSetup.js",
+    "globalTeardown": "./test/config/globalTeardown.js"
   },
   "author": "Roger Takeshita",
   "license": "ISC",
   "dependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.6",
     "@babel/polyfill": "^7.8.7",
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/register": "^7.9.0",
+    "apollo-boost": "^0.4.9",
     "bcryptjs": "^2.4.3",
+    "cross-fetch": "^3.0.4",
     "env-cmd": "^10.1.0",
+    "graphql": "^14.6.0",
     "graphql-cli": "^3.0.14",
     "graphql-yoga": "^1.18.3",
     "jsonwebtoken": "^8.5.1",
     "prisma-binding": "^2.3.16"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.9.6",
+    "jest": "^26.0.1"
   }
 }
