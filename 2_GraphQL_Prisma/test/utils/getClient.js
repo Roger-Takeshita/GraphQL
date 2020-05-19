@@ -7,7 +7,7 @@ const getClient = (token) => {
             if (token) {
                 operation.setContext({
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Baerer ${token}`
                     }
                 });
             }
