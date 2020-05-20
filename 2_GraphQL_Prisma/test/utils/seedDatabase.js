@@ -9,7 +9,7 @@ class User {
         this.email = email;
         this.password = password;
     }
-    newObject() {
+    newUser() {
         return {
             input: {
                 name: this.name,
@@ -28,7 +28,7 @@ class Post {
         this.body = body;
         this.published = published;
     }
-    newObject() {
+    newPost() {
         return {
             input: {
                 title: this.title,
@@ -40,20 +40,43 @@ class Post {
     }
 }
 
-const userOne = new User('Mike', 'mike@example.com', 'bananinha').newObject();
-const postOne = new Post('Cabecinha published post 1', '', true).newObject();
-const postTwo = new Post('Cabecinha not published post 2', '').newObject();
+class Comment {
+    constructor(text, post) {
+        this.text = text;
+        this.post = post;
+    }
+    newComment() {
+        return {
+            input: {
+                text: this.text
+            },
+            comment: undefined
+        };
+    }
+}
+
+const userOne = new User('Mike', 'mike@example.com', 'bananinha').newUser();
+const userTwo = new User('Yumi', 'yumi@example.com', 'bananinha').newUser();
+const postOne = new Post('Cabecinha published post 1', '', true).newPost();
+const postTwo = new Post('Cabecinha not published post 2', '').newPost();
+const commentUserOne = new Comment('Thank you Yumi', '').newComment();
+const commentUserTwo = new Comment('Nice post Cabecinha', '').newComment();
 
 const seedDatabase = async () => {
     //! Delete test data
     await prisma.mutation.deleteManyUsers();
     await prisma.mutation.deleteManyPosts();
-    //! Create user
+    await prisma.mutation.deleteManyComments();
+    //! Create users
     userOne.user = await prisma.mutation.createUser({
         data: userOne.input
     });
+    userTwo.user = await prisma.mutation.createUser({
+        data: userTwo.input
+    });
     //! Save token
     userOne.token = jwt.sign({ userId: userOne.user.id }, process.env.JWT_SECRET, { expiresIn: '1 day' });
+    userTwo.token = jwt.sign({ userId: userTwo.user.id }, process.env.JWT_SECRET, { expiresIn: '1 day' });
     //! Create posts
     //+ Post 1
     const publishedPost = {
@@ -79,6 +102,38 @@ const seedDatabase = async () => {
     };
     postOne.post = await prisma.mutation.createPost(publishedPost);
     postTwo.post = await prisma.mutation.createPost(notPublishedPost);
+    const commentUserOnePostOne = {
+        data: {
+            ...commentUserOne.input,
+            post: {
+                connect: {
+                    id: postOne.post.id
+                }
+            },
+            author: {
+                connect: {
+                    id: userOne.user.id
+                }
+            }
+        }
+    };
+    const commentUserTwoPostOne = {
+        data: {
+            ...commentUserTwo.input,
+            post: {
+                connect: {
+                    id: postOne.post.id
+                }
+            },
+            author: {
+                connect: {
+                    id: userTwo.user.id
+                }
+            }
+        }
+    };
+    commentUserTwo.comment = await prisma.mutation.createComment(commentUserTwoPostOne);
+    commentUserOne.comment = await prisma.mutation.createComment(commentUserOnePostOne);
 };
 
-export { seedDatabase as default, userOne, postOne, postTwo };
+export { seedDatabase as default, userOne, userTwo, postOne, postTwo, commentUserOne, commentUserTwo };

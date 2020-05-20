@@ -2,7 +2,7 @@ import 'cross-fetch/polyfill';
 import prisma from '../src/prisma';
 import seedDatabase, { userOne, postOne, postTwo } from './utils/seedDatabase';
 import getClient from './utils/getClient';
-import { getPosts, updatePost, createPost, deletePost } from './utils/oepartions';
+import { getPosts, updatePost, createPost, deletePost } from './utils/operations';
 
 const client = getClient();
 
