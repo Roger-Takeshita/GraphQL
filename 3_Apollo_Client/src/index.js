@@ -45,6 +45,7 @@ const getPosts = gql`
         }
     }
 `;
+
 client
     .query({
         query: getPosts
